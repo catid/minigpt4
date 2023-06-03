@@ -6,17 +6,13 @@
 """
 import contextlib
 import logging
-import os
-import time
-import datetime
 
 import torch
 import torch.nn as nn
 import torch.distributed as dist
 import torch.nn.functional as F
 
-from minigpt4.models.base_model import BaseModel
-from minigpt4.models.Qformer import BertConfig, BertLMHeadModel
+from qformer import BertConfig, BertLMHeadModel
 from minigpt4.models.eva_vit import create_eva_vit_g
 from transformers import BertTokenizer
 
