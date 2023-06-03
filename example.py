@@ -1,8 +1,13 @@
 from minigpt4 import MiniGPT4
 from blip_processor import Blip2ImageEvalProcessor
-from conversation import Chat
+from conversation import Chat, CONV_VISION
 
 import torch
+import time
+
+print("Loading models...")
+
+t0 = time.time()
 
 model = MiniGPT4(
     llama_model="/home/catid/sources/minigpt4/models/vicuna13b_v0/"
@@ -18,4 +23,37 @@ torch.compile(model)
 
 vis_processor = Blip2ImageEvalProcessor()
 
-chat = Chat(model, vis_processor, device='cuda:0')
+chat = Chat(model, vis_processor, half=True, device='cuda:0')
+
+t1 = time.time()
+
+print("Models loaded in {} seconds".format(t1-t0))
+print("Loading image...")
+
+t0 = time.time()
+
+chat_state = CONV_VISION.copy()
+img_list = []
+chat.upload_img("icbm_bicycle.png", chat_state, img_list)
+
+t1 = time.time()
+
+print("Image loaded in {} seconds".format(t1-t0))
+
+t0 = time.time()
+
+num_beams = 3
+temperature = 0.7
+
+chat.ask("What is riding the bicycle?", chat_state)
+
+llm_message = chat.answer(conv=chat_state,
+                            img_list=img_list,
+                            num_beams=num_beams,
+                            temperature=temperature,
+                            max_new_tokens=2048,
+                            max_length=2048)[0]
+
+t1 = time.time()
+
+print(llm_message)

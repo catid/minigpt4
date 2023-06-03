@@ -13,7 +13,7 @@ import torch.distributed as dist
 import torch.nn.functional as F
 
 from qformer import BertConfig, BertLMHeadModel
-from minigpt4.models.eva_vit import create_eva_vit_g
+from eva_vit import create_eva_vit_g
 from transformers import BertTokenizer
 
 class BaseModel(nn.Module):

@@ -2,3 +2,4 @@ torch
 torchvision
 transformers
 timm
+sentencepiece
