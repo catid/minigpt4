@@ -54,7 +54,7 @@ for i in range(5):
                                 num_beams=num_beams,
                                 temperature=temperature,
                                 max_new_tokens=1024,
-                                max_length=2048)[0]
+                                max_length=2048)
 
     t1 = time.time()
 

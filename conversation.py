@@ -234,7 +234,9 @@ class Chat:
         output_text = output_text.lstrip("<s>")
         output_text = output_text.split('###')[0]  # remove the stop sign '###'
         output_text = output_text.split('Assistant:')[-1].strip()
+
         conv.messages[-1][1] = output_text
+
         return output_text
 
     def upload_img(self, image, conv, img_list):
