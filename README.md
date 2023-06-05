@@ -23,6 +23,7 @@ cd minigpt4
 git lfs install
 git submodule update --init --recursive
 
+conda activate minigpt4
 pip install -r requirements.txt
 ```
 
