@@ -23,37 +23,40 @@ torch.compile(model)
 
 vis_processor = Blip2ImageEvalProcessor()
 
-chat = Chat(model, vis_processor, half=True, device='cuda:0')
+chat = Chat(model, vis_processor, device='cuda:0')
 
 t1 = time.time()
 
 print("Models loaded in {} seconds".format(t1-t0))
-print("Loading image...")
 
-t0 = time.time()
+for i in range(5):
+    print("Loading image...")
 
-chat_state = CONV_VISION.copy()
-img_list = []
-chat.upload_img("icbm_bicycle.png", chat_state, img_list)
+    t0 = time.time()
 
-t1 = time.time()
+    chat_state = CONV_VISION.copy()
+    img_list = []
+    chat.upload_img("icbm_bicycle.png", chat_state, img_list)
 
-print("Image loaded in {} seconds".format(t1-t0))
+    t1 = time.time()
 
-t0 = time.time()
+    print("Image loaded in {} seconds".format(t1-t0))
 
-num_beams = 3
-temperature = 0.7
+    t0 = time.time()
 
-chat.ask("What is riding the bicycle?", chat_state)
+    num_beams = 1
+    temperature = 0.01
 
-llm_message = chat.answer(conv=chat_state,
-                            img_list=img_list,
-                            num_beams=num_beams,
-                            temperature=temperature,
-                            max_new_tokens=2048,
-                            max_length=2048)[0]
+    chat.ask("Tell me what you see on the road.", chat_state)
 
-t1 = time.time()
+    llm_message = chat.answer(conv=chat_state,
+                                img_list=img_list,
+                                num_beams=num_beams,
+                                temperature=temperature,
+                                max_new_tokens=1024,
+                                max_length=2048)[0]
 
-print(llm_message)
+    t1 = time.time()
+
+    print(chat_state)
+    print("Generated LLM response in {} seconds".format(t1-t0))

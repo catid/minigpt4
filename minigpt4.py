@@ -48,6 +48,7 @@ class MiniGPT4(Blip2Base):
         self.visual_encoder, self.ln_vision = self.init_vision_encoder(
             vit_model, img_size, drop_path_rate, use_grad_checkpoint, vit_precision
         )
+
         if freeze_vit:
             for name, param in self.visual_encoder.named_parameters():
                 param.requires_grad = False
@@ -59,6 +60,11 @@ class MiniGPT4(Blip2Base):
             self.ln_vision.train = disabled_train
             logging.info("freeze vision encoder")
         print('Loading VIT Done')
+
+        self.visual_encoder = self.visual_encoder.to("cuda").half()
+        self.ln_vision = self.ln_vision.to("cuda").half()
+        self.visual_encoder = torch.compile(self.visual_encoder)
+        self.ln_vision = torch.compile(self.ln_vision)
 
         print('Loading Q-Former')
         self.Qformer, self.query_tokens = self.init_Qformer(
@@ -81,6 +87,11 @@ class MiniGPT4(Blip2Base):
             logging.info("freeze Qformer")
         print('Loading Q-Former Done')
 
+        self.Qformer.bert = self.Qformer.bert.to("cuda").half()
+        self.Qformer.bert = torch.compile(self.Qformer.bert)
+        self.Qformer = self.Qformer.to("cuda").half()
+        self.Qformer = torch.compile(self.Qformer)
+
         print('Loading LLAMA')
         self.llama_tokenizer = LlamaTokenizer.from_pretrained(llama_model, use_fast=False)
         self.llama_tokenizer.pad_token = self.llama_tokenizer.eos_token
@@ -98,15 +109,23 @@ class MiniGPT4(Blip2Base):
             self.llama_model = LlamaForCausalLM.from_pretrained(
                 llama_model,
                 torch_dtype=torch_dtype,
+                load_in_8bit=CUDA,
+                device_map='auto'
             )
 
         for name, param in self.llama_model.named_parameters():
             param.requires_grad = False
         print('Loading LLAMA Done')
 
+        #self.llama_model = self.llama_model.to("cuda").half()
+        self.llama_model = torch.compile(self.llama_model)
+
         self.llama_proj = nn.Linear(
             self.Qformer.config.hidden_size, self.llama_model.config.hidden_size
         )
+
+        self.llama_proj = self.llama_proj.to("cuda").half()
+
         self.max_txt_len = max_txt_len
         self.end_sym = end_sym
 
@@ -129,6 +148,7 @@ class MiniGPT4(Blip2Base):
     def encode_img(self, image):
         device = image.device
         if self.low_resource:
+            print("LOW RESOURCE MODE")
             self.vit_to_cpu()
             image = image.to("cpu")
 
@@ -136,7 +156,8 @@ class MiniGPT4(Blip2Base):
             image_embeds = self.ln_vision(self.visual_encoder(image)).to(device)
             image_atts = torch.ones(image_embeds.size()[:-1], dtype=torch.long).to(device)
 
-            query_tokens = self.query_tokens.expand(image_embeds.shape[0], -1, -1)
+            query_tokens = self.query_tokens.expand(image_embeds.shape[0], -1, -1).to(device).half()
+
             query_output = self.Qformer.bert(
                 query_embeds=query_tokens,
                 encoder_hidden_states=image_embeds,

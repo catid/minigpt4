@@ -413,14 +413,14 @@ def create_eva_vit_g(img_size=224,drop_path_rate=0.4,use_checkpoint=False,precis
         drop_path_rate=drop_path_rate,
         norm_layer=partial(nn.LayerNorm, eps=1e-6),
         use_checkpoint=use_checkpoint,
-    )  
-    state_dict = torch.load("models/eva_vit_g.pth", map_location="cpu")    
+    )
+    state_dict = torch.load("models/eva_vit_g.pth", map_location="cpu")
     interpolate_pos_embed(model,state_dict)
     
     incompatible_keys = model.load_state_dict(state_dict, strict=False)
 #     print(incompatible_keys)
     
     if precision == "fp16":
-#         model.to("cuda") 
         convert_weights_to_fp16(model)
+
     return model
