@@ -2,6 +2,8 @@
 
 This is a simplified version of MiniGPT-4 that can be used much more easily than the official repo.
 
+Official MiniGPT-4 repo here: https://minigpt-4.github.io/
+
 It's a better starting point for people trying to integrate MiniGPT-4 into their own hobby projects.  May require some tweaking to get it to work with your specific use case, but it should be much easier than starting from scratch.
 
 Designed to be integrated into https://github.com/catid/aiwebcam
