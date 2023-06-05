@@ -47,6 +47,7 @@ Loading LLAMA
 
 Loading image...
 Image loaded in 0.03954195976257324 seconds
-Conversation(system='Human provides a photo and asks questions.  Assistant answers the questions honestly and simply.', roles=('Human', 'Assistant'), messages=[['Human', '<Img><ImageHere></Img> Tell me what you see on the road.'], ['Assistant', 'I see a large, white missile on the road. It appears to be made of metal and has a pointed nose and tail. It is sitting on the ground, leaning against a road sign. The sign says "Danger: Missile Ahead". There is a cloudy sky in the background.']], offset=2, sep_style=<SeparatorStyle.SINGLE: 1>, sep='###', sep2=None, skip_next=False, conv_id=None)
+Conversation(system='Human provides a photo and asks questions.  Assistant answers the questions honestly and simply.', roles=('Human', 'Assistant'), messages=[['Human', '<Img><ImageHere></Img> Tell me what you see on the road.'],
+['Assistant', 'I see a large, white missile on the road. It appears to be made of metal and has a pointed nose and tail. It is sitting on the ground, leaning against a road sign. The sign says "Danger: Missile Ahead". There is a cloudy sky in the background.']], offset=2, sep_style=<SeparatorStyle.SINGLE: 1>, sep='###', sep2=None, skip_next=False, conv_id=None)
 Generated LLM response in 4.666545391082764 seconds
 ```
