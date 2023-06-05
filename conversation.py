@@ -193,7 +193,8 @@ class Chat:
         return output_text, output_token.cpu().numpy()
 
     def answer_async(self, conv, img_list, max_new_tokens=300, num_beams=1, min_length=1, top_p=0.9,
-               repetition_penalty=1.0, length_penalty=1, temperature=1.0, max_length=2000):
+               repetition_penalty=1.0, length_penalty=1, temperature=1.0, max_length=2000,
+               text_callback=None):
         conv.append_message(conv.roles[1], None)
         embs = self.get_context_emb(conv, img_list)
 
@@ -222,13 +223,11 @@ class Chat:
         thread = Thread(target=self.model.llama_model.generate, kwargs=generation_kwargs)
         thread.start()
 
-        print("Live output: ", end='', flush=True)
-
         output_text = ""
         for new_text in streamer:
             output_text += new_text
-            print(new_text, end='', flush=True)
-        print("")
+            if text_callback is not None:
+                text_callback(new_text)
 
         output_text = output_text.lstrip("<unk>")
         output_text = output_text.lstrip("<s>")

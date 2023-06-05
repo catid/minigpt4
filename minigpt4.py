@@ -23,7 +23,8 @@ class MiniGPT4(Blip2Base):
     def __init__(
         self,
         vit_model="eva_clip_g",
-        q_former_model="models/blip2_pretrained_flant5xxl.pth",
+        vision_model_path=None,
+        q_former_model=None,
         img_size=224,
         drop_path_rate=0,
         use_grad_checkpoint=False,
@@ -46,7 +47,7 @@ class MiniGPT4(Blip2Base):
 
         print('Loading VIT')
         self.visual_encoder, self.ln_vision = self.init_vision_encoder(
-            vit_model, img_size, drop_path_rate, use_grad_checkpoint, vit_precision
+            vision_model_path, vit_model, img_size, drop_path_rate, use_grad_checkpoint, vit_precision
         )
 
         if freeze_vit:
