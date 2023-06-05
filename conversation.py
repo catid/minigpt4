@@ -5,10 +5,35 @@ from PIL import Image
 import torch
 from transformers import StoppingCriteria, StoppingCriteriaList
 
+from threading import Thread
+from transformers import TextIteratorStreamer
+
 import dataclasses
 from enum import auto, Enum
 from typing import List, Tuple, Any
 
+
+
+class BaseStreamer:
+    """
+    Base class from which `.generate()` streamers should inherit.
+    """
+
+    def put(self, value):
+        """Function that is called by `.generate()` to push new tokens"""
+        raise NotImplementedError()
+
+    def end(self):
+        """Function that is called by `.generate()` to signal the end of generation"""
+        raise NotImplementedError()
+
+
+class ChatStreamer(BaseStreamer):
+    def put(self, value):
+        print("PUT: {}".format(value))
+
+    def end(self):
+        print("END")
 
 class SeparatorStyle(Enum):
     """Different separator style."""
@@ -166,6 +191,51 @@ class Chat:
         output_text = output_text.split('Assistant:')[-1].strip()
         conv.messages[-1][1] = output_text
         return output_text, output_token.cpu().numpy()
+
+    def answer_async(self, conv, img_list, max_new_tokens=300, num_beams=1, min_length=1, top_p=0.9,
+               repetition_penalty=1.0, length_penalty=1, temperature=1.0, max_length=2000):
+        conv.append_message(conv.roles[1], None)
+        embs = self.get_context_emb(conv, img_list)
+
+        current_max_len = embs.shape[1] + max_new_tokens
+        if current_max_len > max_length:
+            print('Warning: The number of tokens in current conversation exceeds the max length. '
+                  'The model will not see the contexts outside the range.')
+        begin_idx = max(0, current_max_len - max_length)
+
+        embs = embs[:, begin_idx:]
+
+        streamer = TextIteratorStreamer(self.model.llama_tokenizer)
+
+        generation_kwargs = dict(streamer=streamer,
+            inputs_embeds=embs,
+            max_new_tokens=max_new_tokens,
+            stopping_criteria=self.stopping_criteria,
+            num_beams=num_beams,
+            do_sample=True,
+            min_length=min_length,
+            top_p=top_p,
+            repetition_penalty=repetition_penalty,
+            length_penalty=length_penalty,
+            temperature=temperature)
+
+        thread = Thread(target=self.model.llama_model.generate, kwargs=generation_kwargs)
+        thread.start()
+
+        print("Live output: ", end='', flush=True)
+
+        output_text = ""
+        for new_text in streamer:
+            output_text += new_text
+            print(new_text, end='', flush=True)
+        print("")
+
+        output_text = output_text.lstrip("<unk>")
+        output_text = output_text.lstrip("<s>")
+        output_text = output_text.split('###')[0]  # remove the stop sign '###'
+        output_text = output_text.split('Assistant:')[-1].strip()
+        conv.messages[-1][1] = output_text
+        return output_text
 
     def upload_img(self, image, conv, img_list):
         if isinstance(image, str):  # is a image path

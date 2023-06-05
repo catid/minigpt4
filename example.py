@@ -10,10 +10,10 @@ print("Loading models...")
 t0 = time.time()
 
 model = MiniGPT4(
-    llama_model="/home/catid/sources/minigpt4/models/vicuna13b_v0/"
+    llama_model="models/vicuna13b_v0/"
 )
 
-ckpt_path = "/home/catid/sources/minigpt4/models/pretrained_minigpt4.pth"
+ckpt_path = "models/pretrained_minigpt4.pth"
 
 print("Load BLIP2-LLM Checkpoint: {}".format(ckpt_path))
 ckpt = torch.load(ckpt_path, map_location="cpu")
@@ -49,7 +49,7 @@ for i in range(5):
 
     chat.ask("Tell me what you see on the road.", chat_state)
 
-    llm_message = chat.answer(conv=chat_state,
+    output_text = chat.answer_async(conv=chat_state,
                                 img_list=img_list,
                                 num_beams=num_beams,
                                 temperature=temperature,
@@ -58,5 +58,6 @@ for i in range(5):
 
     t1 = time.time()
 
+    print("LLM response: {}".format(output_text))
     print(chat_state)
     print("Generated LLM response in {} seconds".format(t1-t0))

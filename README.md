@@ -28,7 +28,7 @@ pip install -r requirements.txt
 
 ## Example Usage
 
-This uses about 18.2 GB of VRAM to run:
+This uses about 18.2 GB of VRAM to run.  Note that the first question/answer will be very slow because it is compiling the model.  Subsequent questions will be much faster.
 
 ![Example Image](icbm_bicycle.png)
 
