@@ -5,9 +5,14 @@ import torch
 from torch.cuda.amp import autocast as autocast
 import torch.nn as nn
 
-from .blip2 import Blip2Base, disabled_train
-from .llama import LlamaForCausalLM
 from transformers import LlamaTokenizer
+
+try:
+    from .blip2 import Blip2Base, disabled_train
+    from .llama import LlamaForCausalLM
+except ImportError:
+    from blip2 import Blip2Base, disabled_train
+    from llama import LlamaForCausalLM
 
 CUDA = torch.cuda.is_available()
 
