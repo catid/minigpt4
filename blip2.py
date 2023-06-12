@@ -12,8 +12,8 @@ import torch.nn as nn
 import torch.distributed as dist
 import torch.nn.functional as F
 
-from qformer import BertConfig, BertLMHeadModel
-from eva_vit import create_eva_vit_g
+from .qformer import BertConfig, BertLMHeadModel
+from .eva_vit import create_eva_vit_g
 from transformers import BertTokenizer
 
 class BaseModel(nn.Module):
@@ -144,7 +144,7 @@ class Blip2Base(BaseModel):
 
     @classmethod
     def init_vision_encoder(
-        model_path, cls, model_name, img_size, drop_path_rate, use_grad_checkpoint, precision
+        cls, model_path, model_name, img_size, drop_path_rate, use_grad_checkpoint, precision
     ):
         assert model_name == "eva_clip_g", "vit model must be eva_clip_g for current version of MiniGPT-4"
         visual_encoder = create_eva_vit_g(

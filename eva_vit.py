@@ -414,7 +414,8 @@ def create_eva_vit_g(model_path, img_size=224,drop_path_rate=0.4,use_checkpoint=
         norm_layer=partial(nn.LayerNorm, eps=1e-6),
         use_checkpoint=use_checkpoint,
     )
-    state_dict = torch.load("models/eva_vit_g.pth", map_location="cpu")
+
+    state_dict = torch.load(model_path, map_location="cpu")
     interpolate_pos_embed(model,state_dict)
     
     incompatible_keys = model.load_state_dict(state_dict, strict=False)

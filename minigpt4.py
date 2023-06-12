@@ -5,8 +5,8 @@ import torch
 from torch.cuda.amp import autocast as autocast
 import torch.nn as nn
 
-from blip2 import Blip2Base, disabled_train
-from llama import LlamaForCausalLM
+from .blip2 import Blip2Base, disabled_train
+from .llama import LlamaForCausalLM
 from transformers import LlamaTokenizer
 
 CUDA = torch.cuda.is_available()
@@ -45,7 +45,7 @@ class MiniGPT4(Blip2Base):
         self.tokenizer = self.init_tokenizer()
         self.low_resource = low_resource
 
-        print('Loading VIT')
+        print(f"Loading VIT: vision_model_path={vision_model_path}")
         self.visual_encoder, self.ln_vision = self.init_vision_encoder(
             vision_model_path, vit_model, img_size, drop_path_rate, use_grad_checkpoint, vit_precision
         )
